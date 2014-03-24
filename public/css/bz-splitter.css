@@ -53,3 +53,16 @@ li {
     text-align: center;
 }
 
+#filepath-list {
+    padding: 1%;
+    width: auto;
+}
+
+div.filepath, div.author {
+    position: relative;
+    margin: 5px 0;
+}
+
+.ui-accordion-header {
+    padding: 0 2em;
+}

@@ -1,0 +1,11 @@
+<h2>Browse by files</h2>
+
+<div id="filepath-list">
+  [% FOR file IN files %]
+    <div class="filepath" data-filepath=[% file.filepath %]>
+      <h3>[% file.filepath %]</h3>
+      <!--<p>Loading... Please wait.</p>-->
+      <div></div>
+    </div>
+  [% END %]
+</div>

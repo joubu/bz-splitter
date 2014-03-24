@@ -3,6 +3,11 @@ package BZSplitter;
 use Modern::Perl;
 use Dancer ':syntax';
 
+use Dancer::Plugin::Database;
+use Dancer::Plugin::Ajax;
+
+use HTML::Entities;
+
 our $VERSION = '0.1';
 
 our $config = {
@@ -14,5 +19,28 @@ our $config = {
 get '/' => sub {
     template 'index';
 };
+
+get '/files' => sub {
+    my $files = get_files();
+    template 'files' => {
+        action => 'list',
+        files  => $files,
+    };
+};
+
+sub get_files {
+    my ($filters) = @_;
+    return database->selectall_arrayref(
+        q|
+            SELECT  distinct(filepath),
+                    SUM(num_lines_added) AS num_lines_added,
+                    SUM(num_lines_deleted) AS num_lines_deleted
+            FROM diff
+            GROUP BY filepath
+            ORDER BY filepath
+        |,
+        { Slice => {} }
+    );
+}
 
 true;
