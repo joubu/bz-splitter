@@ -1,20 +1,42 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-type" content="text/html; charset=<% settings.charset %>" />
-<title>bzsplitter</title>
-<link rel="stylesheet" href="<% request.uri_base %>/css/style.css" />
+  <head>
+  <meta http-equiv="Content-type" content="text/html; charset=[% settings.charset %]" />
+  <title>bz-splitter</title>
+  <link rel="stylesheet" href="[% request.uri_base %]/css/jquery-ui.css" />
+  <link rel="stylesheet" href="[% request.uri_base %]/css/bz-splitter.css" />
 
-<script type="text/javascript">/* <![CDATA[ */
-    !window.jQuery && document.write('<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery.js"><\/script>')
-/* ]]> */</script>
+  <script type="text/javascript" src="[% request.uri_base %]/javascripts/jquery.js"></script>
+  <script type="text/javascript" src="[% request.uri_base %]/javascripts/jquery-ui.js"></script>
+  <script type="text/javascript" src="[% request.uri_base %]/javascripts/bz-splitter.js"></script>
 
-</head>
-<body>
-<% content %>
-<div id="footer">
-Powered by <a href="http://perldancer.org/">Dancer</a> <% dancer_version %>
-</div>
-</body>
+
+  </head>
+  <body>
+
+    <div id="document">
+      <div id="header">
+        <h1>Browse patches</h1>
+        <h2>Find the patch you are searching for!</h2>
+      </div>
+
+      <div id="content">
+        [% content %]
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <h3>Browse by</h3>
+      <ul class="links">
+        <li><a href="/files">Files</a></li>
+        <li><a href="/authors">Authors</a></li>
+      </ul>
+    </div>
+
+
+    <div id="footer">
+    Powered by <a href="http://perldancer.org/">Dancer</a> [% dancer_version %]
+    </div>
+  </body>
 </html>
