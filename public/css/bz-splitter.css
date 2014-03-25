@@ -58,7 +58,7 @@ li {
     width: auto;
 }
 
-div.filepath, div.author {
+div.filepath {
     position: relative;
     margin: 5px 0;
 }
@@ -92,3 +92,30 @@ div.patch pre {
     margin: 0;
     padding: 0;
 }
+
+span.infos {
+    margin: 0;
+    padding: 0;
+    position:absolute;
+    top: 0px;
+    right: 2px;
+    z-index: 9999;
+    min-width: 15%;
+}
+.num_lines_added {
+    position: relative;
+    padding: 2px 0;
+    float: left;
+}
+.num_lines_deleted {
+    position: relative;
+    padding: 2px 0;
+    float: right;
+}
+.num_lines_added span.ui-icon {
+    float: left;
+}
+.num_lines_deleted span.ui-icon {
+    float: right;
+}
+

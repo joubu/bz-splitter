@@ -6,10 +6,20 @@
 
 <div id="filepath-list">
   [% FOR file IN files %]
-    <div class="filepath" data-filepath=[% file.filepath %]>
+    <div class="filepath" data-filepath=[% file.filepath %] data-add=[% file.num_lines_added %] data-del=[% file.num_lines_deleted %]>
       <h3>[% file.filepath %]</h3>
       <!--<p>Loading... Please wait.</p>-->
       <div></div>
+      <span class="infos">
+        <span class="num_lines_added">
+          <span class="ui-icon ui-icon-circle-plus"></span>
+          [% file.num_lines_added %]
+        </span>
+        <span class="num_lines_deleted">
+          <span class="ui-icon ui-icon-circle-minus"></span>
+          [% file.num_lines_deleted %]
+        </span>
+      </span>
     </div>
   [% END %]
 </div>
