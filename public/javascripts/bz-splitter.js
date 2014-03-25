@@ -72,7 +72,28 @@ function add_accordion_to_filepaths( filepathlist_node ) {
   });
 }
 
+var delay = (function(){
+  var timer = 0;
+  return function(callback, ms){
+    clearTimeout (timer);
+    timer = setTimeout(callback, ms);
+  };
+})();
+
 $(document).ready(function(){
+  $("#filepath-filter").on('keyup', function(){
+    var pattern = $(this).val();
+    delay(function(){
+      var filepath_nodes = $("#filepath-list div.filepath");
+      $(filepath_nodes).hide();
+      $(filepath_nodes).filter(function( index ) {
+        if ( $(this).attr('data-filepath').match(".*"+pattern+".*") ) {
+          return 1
+        }
+        return 0
+      }).show();
+    }, 1000);
+  });
   $(function() {
     add_accordion_to_filepaths( $("#filepath-list") );
   });

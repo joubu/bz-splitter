@@ -1,5 +1,9 @@
 <h2>Browse by files</h2>
 
+<div class="tools">
+  <input class="filter" id="filepath-filter" placeholder="Filter by files"/>
+</div>
+
 <div id="filepath-list">
   [% FOR file IN files %]
     <div class="filepath" data-filepath=[% file.filepath %]>
