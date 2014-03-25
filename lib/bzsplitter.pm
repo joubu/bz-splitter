@@ -28,6 +28,17 @@ get '/files' => sub {
     };
 };
 
+ajax '/bugs/file/' => sub {
+    my $filepath = params->{filepath};
+    my $bugs = get_bugs_by_filepath( { filepath => $filepath } );
+    {
+        bugs     => $bugs,
+        base_url => $config->{bugzilla}{base_url},
+    };
+};
+
+
+
 sub get_files {
     my ($filters) = @_;
     return database->selectall_arrayref(
@@ -42,5 +53,26 @@ sub get_files {
         { Slice => {} }
     );
 }
+
+sub get_bugs_by_filepath {
+    my ($params) = @_;
+    my $filepath = $params->{filepath};
+    return database->selectall_arrayref(
+        q|
+            SELECT  DISTINCT(bug_id),
+                    bug_title,
+                    bug_status,
+                    SUM(num_lines_added) AS num_lines_added,
+                    SUM(num_lines_deleted) AS num_lines_deleted
+            FROM diff
+            WHERE filepath = ?
+            GROUP BY bug_id
+            ORDER BY bug_id
+        |,
+        { Slice => {} },
+        $filepath
+    );
+}
+
 
 true;
