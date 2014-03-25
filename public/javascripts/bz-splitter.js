@@ -41,6 +41,11 @@ function add_accordion_to_bugs ( buglist_node ) {
         });
       }
     },
+    activate: function(event, ui) {
+      if (ui.newPanel.html() != '' ) {
+        $(ui.newPanel).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
+      }
+    }
   });
 }
 

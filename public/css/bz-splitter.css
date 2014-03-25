@@ -63,6 +63,32 @@ div.filepath, div.author {
     margin: 5px 0;
 }
 
+div.patch {
+    position: relative;
+    margin: 5px 0;
+}
+
 .ui-accordion-header {
     padding: 0 2em;
+}
+
+.ui-accordion-content, .ui-widget-content {
+    background: #F1FAFA;
+}
+.ui-accordion-header-active, .ui-widget-content .ui-state-active {
+    background: #D3D3D3;
+}
+
+div.patch .ui-accordion-content {
+    padding: 0;
+}
+
+div.patch h3 {
+    margin: 5px 0 0;
+    text-align: center;
+}
+
+div.patch pre {
+    margin: 0;
+    padding: 0;
 }

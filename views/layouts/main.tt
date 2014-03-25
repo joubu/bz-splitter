@@ -6,10 +6,12 @@
   <title>bz-splitter</title>
   <link rel="stylesheet" href="[% request.uri_base %]/css/jquery-ui.css" />
   <link rel="stylesheet" href="[% request.uri_base %]/css/bz-splitter.css" />
+  <link rel="stylesheet" href="[% request.uri_base %]/css/highlight/zenburn.css" />
 
   <script type="text/javascript" src="[% request.uri_base %]/javascripts/jquery.js"></script>
   <script type="text/javascript" src="[% request.uri_base %]/javascripts/jquery-ui.js"></script>
   <script type="text/javascript" src="[% request.uri_base %]/javascripts/bz-splitter.js"></script>
+  <script type="text/javascript" src="[% request.uri_base %]/javascripts/highlight.pack.js"></script>
 
 
   </head>
