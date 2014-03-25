@@ -37,6 +37,25 @@ ajax '/bugs/file/' => sub {
     };
 };
 
+ajax '/patches/bug/:bug_id/file/' => sub {
+    my $bug_id   = param('bug_id');
+    my $filepath = params->{filepath};
+    my $patches  = get_patches(
+        {
+            bug_id   => $bug_id,
+            filepath => $filepath,
+        }
+    );
+    for my $patch (@$patches) {
+        $patch->{diff} = encode_entities( $patch->{diff} );
+    }
+    {
+        filepath => $filepath,
+        patches  => $patches,
+    };
+};
+
+
 
 
 sub get_files {
@@ -74,5 +93,24 @@ sub get_bugs_by_filepath {
     );
 }
 
+sub get_patches {
+    my ($params)    = @_;
+    my $bug_id      = $params->{bug_id};
+    my $filepath    = $params->{filepath};
+    return database->selectall_arrayref(
+        q|
+            SELECT date, diff, attachment_description
+            FROM diff
+            WHERE bug_id = ? |
+              . ( $filepath    ? q| AND filepath = ? |    : '' )
+              . q| ORDER BY date
+        |,
+        { Slice => {} },
+        (
+            $bug_id,
+            ( $filepath    ? $filepath    : () ),
+        )
+    );
+}
 
 true;
