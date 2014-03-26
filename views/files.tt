@@ -2,6 +2,12 @@
 
 <div class="tools">
   <input class="filter" id="filepath-filter" placeholder="Filter by files"/>
+  <span class="filepath-sort-by">
+    Sort by:
+    <span class="sort-by sort-by-alpha" title="sort by alpha">Alpha</span>
+    <span class="sort-by sort-by-add ui-icon ui-icon-circle-plus" title="sort by add"></span>
+    <span class="sort-by sort-by-del ui-icon ui-icon-circle-minus" title="sort by del"></span>
+  </span>
 </div>
 
 <div id="filepath-list">

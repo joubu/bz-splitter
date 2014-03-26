@@ -118,4 +118,22 @@ span.infos {
 .num_lines_deleted span.ui-icon {
     float: right;
 }
+.tools {
+    padding: 0 1%;
+}
 
+.tools span.filepath-sort-by {
+    float: right;
+}
+.tools span.sort-by {
+    cursor: pointer;
+}
+.tools span.sort-by {
+    float: right;
+}
+.tools span.sort-by-add {
+    float: right;
+}
+.tools span.sort-by-del {
+    float: right;
+}

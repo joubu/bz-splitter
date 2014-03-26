@@ -72,6 +72,26 @@ function add_accordion_to_filepaths( filepathlist_node ) {
   });
 }
 
+/* FIXME Refactor these ugly functions */
+function reorder_filepaths_by_add(){
+    function sortNumChanges(a,b){
+        return $(a).data("add") >$(b).data("add") ? -1 : 1;
+    };
+    $('#filepath-list > div.filepath').sort(sortNumChanges).appendTo('#filepath-list');
+}
+function reorder_filepaths_by_del(){
+    function sortNumChanges(a,b){
+        return $(a).data("del") >$(b).data("del") ? -1 : 1;
+    };
+    $('#filepath-list > div.filepath').sort(sortNumChanges).appendTo('#filepath-list');
+}
+function reorder_filepaths_by_alpha(){
+    function sortNumChanges(a,b){
+        return $(a).data("filepath") >$(b).data("filepath") ? 1 : -1;
+    };
+    $('#filepath-list > div.filepath').sort(sortNumChanges).appendTo('#filepath-list');
+}
+
 var delay = (function(){
   var timer = 0;
   return function(callback, ms){
@@ -81,6 +101,16 @@ var delay = (function(){
 })();
 
 $(document).ready(function(){
+  $(".filepath-sort-by > .sort-by-add").click(function(){
+    reorder_filepaths_by_add();
+  });
+  $(".filepath-sort-by > .sort-by-del").click(function(){
+    reorder_filepaths_by_del();
+  });
+  $(".filepath-sort-by > .sort-by-alpha").click(function(){
+    reorder_filepaths_by_alpha();
+  });
+
   $("#filepath-filter").on('keyup', function(){
     var pattern = $(this).val();
     delay(function(){
