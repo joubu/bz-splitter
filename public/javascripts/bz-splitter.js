@@ -6,6 +6,8 @@ function build_buglist_node_for_filepath(bugs, filepath) {
       $(title).appendTo(new_bug_node);
       $('<div></div>').appendTo(new_bug_node);
       $(new_bug_node).appendTo(bug_list);
+
+      $('<span class="infos"><span class="num_lines_added"><span class="ui-icon ui-icon-circle-plus"></span>'+this['num_lines_added']+'</span><span class="num_lines_deleted"><span class="ui-icon ui-icon-circle-minus"></span>'+this['num_lines_deleted'] + '</span>').appendTo(new_bug_node);
     });
     return bug_list;
 }
