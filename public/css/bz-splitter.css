@@ -53,12 +53,17 @@ li {
     text-align: center;
 }
 
-#filepath-list {
+#filepath-list, author-list {
     padding: 1%;
     width: auto;
 }
 
 div.filepath {
+    position: relative;
+    margin: 5px 0;
+}
+
+div.filepath, div.author {
     position: relative;
     margin: 5px 0;
 }
@@ -106,6 +111,9 @@ span.infos {
     position: relative;
     padding: 2px 0;
     float: left;
+}
+.num_lines_added:after {
+    content: "\00a0";
 }
 .num_lines_deleted {
     position: relative;

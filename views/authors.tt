@@ -1,0 +1,33 @@
+<h2>Browse by authors</h2>
+
+<div class="tools">
+  <input class="filter" id="author-filter" placeholder="Filter by authors"/>
+  <span class="author-sort-by">
+    Sort by:
+    <span class="sort-by sort-by-alpha" title="sort by alpha">Alpha</span>
+    <span class="sort-by sort-by-add ui-icon ui-icon-circle-plus" title="sort by add"></span>
+    <span class="sort-by sort-by-del ui-icon ui-icon-circle-minus" title="sort by del"></span>
+  </span>
+</div>
+
+<div id="author-list">
+  [% FOR author IN authors %]
+    [% IF author.author_name %] [%# FIXME Some patch don't have an author %]
+      <div class="author" data-author_name="[% author.author_name %]" data-add="[% author.num_lines_added %]" data-del="[% author.num_lines_deleted %]">
+        <h3>[% IF author.author_name %][% author.author_name %][% ELSE %]?[% END %] ([% author.num_bugs %] bugs / [% author.num_patches %] patches)</h3>
+        <!--<p>Loading... Please wait.</p>-->
+        <div></div>
+        <span class="infos">
+          <span class="num_lines_added">
+            <span class="ui-icon ui-icon-circle-plus"></span>
+            [% author.num_lines_added %]
+          </span>
+          <span class="num_lines_deleted">
+            <span class="ui-icon ui-icon-circle-minus"></span>
+            [% author.num_lines_deleted %]
+          </span>
+        </span>
+      </div>
+    [% END %]
+  [% END %]
+</div>
