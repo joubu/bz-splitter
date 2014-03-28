@@ -1,0 +1,5 @@
+- Add a decent README
+- Add unit tests (!)
+- Ajust scrollbar on opening a big accordion
+- Add links to bug and to attachment
+- FIX syntax color for html patches
