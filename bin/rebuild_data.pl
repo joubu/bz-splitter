@@ -75,6 +75,7 @@ for my $bug_number ( @bug_numbers ) {
         LEFT JOIN bugs ON attachments.bug_id = bugs.bug_id
         WHERE attachments.bug_id = ?
         AND ispatch = 1
+        AND isobsolete = 0
     |, { Slice => {} }, $bug_number )};
     my @patches;
     for my $attachment ( @attachments ) {
