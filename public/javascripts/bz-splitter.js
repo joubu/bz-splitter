@@ -4,7 +4,7 @@ function build_buglist_node_for_filepath(bugs, filepath) {
       var new_bug_node = $('<div class="patch" data-bug_id=' + this['bug_id'] + ' data-filepath=' + filepath + ' ></div>');
       var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
       $(title).appendTo(new_bug_node);
-      $('<div></div>').appendTo(new_bug_node);
+      $('<div>Loading...</div>').appendTo(new_bug_node);
       $(new_bug_node).appendTo(bug_list);
 
       $('<span class="infos"><span class="num_lines_added"><span class="ui-icon ui-icon-circle-plus"></span>'+this['num_lines_added']+'</span><span class="num_lines_deleted"><span class="ui-icon ui-icon-circle-minus"></span>'+this['num_lines_deleted'] + '</span>').appendTo(new_bug_node);
@@ -18,7 +18,7 @@ function build_buglist_node_for_author(bugs, author_name) {
       var new_bug_node = $('<div class="patch" data-bug_id=' + this['bug_id'] + ' data-author_name="' + author_name + '" ></div>');
       var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
       $(title).appendTo(new_bug_node);
-      $('<div></div>').appendTo(new_bug_node);
+      $('<div>Loading...</div>').appendTo(new_bug_node);
 
       $('<span class="infos"><span class="num_lines_added"><span class="ui-icon ui-icon-circle-plus"></span>'+this['num_lines_added']+'</span><span class="num_lines_deleted"><span class="ui-icon ui-icon-circle-minus"></span>'+this['num_lines_deleted'] + '</span>').appendTo(new_bug_node);
       $(new_bug_node).appendTo(bug_list);
@@ -53,32 +53,31 @@ function add_accordion_to_bugs ( buglist_node ) {
     active: false,
     icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
     header: "h4",
-    beforeActivate: function(event, ui) {
-      if ( ui.newPanel.html() == '' ) {
-        var parent_node = ui.newPanel.parent();
-        var bug_id = parent_node.data('bug_id');
-        var filepath = parent_node.data('filepath');
-        var author_name = parent_node.data('author_name');
-        if ( filepath ) {
-          var url = '/patches/bug/'+bug_id+'/file/?filepath=' + filepath;
-          $.getJSON( url, {format: 'json' }).done(function(data){
-            var html = build_patchlist_node( data.patches );
-            ui.newPanel.html( html );
-          });
-        } else {
-          var url = '/patches/bug/'+bug_id+'/author/' + author_name;
-          $.getJSON( url, {format: 'json' }).done(function(data){
-            var html = build_patchlist_node( data.patches );
-            ui.newPanel.html( html );
-          });
-        }
-      }
-    },
     activate: function(event, ui) {
-      jump_to_header( ui, buglist_node);
-
-      if (ui.newPanel.html() != '' ) {
-        $(ui.newPanel).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
+      if ( ui.newPanel.length > 0 ) {
+        if ( !ui.newPanel.data("loaded") ) {
+          var parent_node = ui.newPanel.parent();
+          var bug_id = parent_node.data('bug_id');
+          var filepath = parent_node.data('filepath');
+          var author_name = parent_node.data('author_name');
+          if ( filepath ) {
+            var url = '/patches/bug/'+bug_id+'/file/?filepath=' + filepath;
+            $.getJSON( url, {format: 'json' }).done(function(data){
+              var html = build_patchlist_node( data.patches );
+              $(html).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
+              ui.newPanel.html( html );
+            });
+          } else {
+            var url = '/patches/bug/'+bug_id+'/author/' + author_name;
+            $.getJSON( url, {format: 'json' }).done(function(data){
+              var html = build_patchlist_node( data.patches );
+              $(html).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
+              ui.newPanel.html( html );
+            });
+          }
+          ui.newPanel.data("loaded", 1);
+        }
+        jump_to_header( ui, buglist_node);
       }
     }
   });
@@ -93,24 +92,23 @@ function add_accordion_to_filepaths( filepathlist_node ) {
     active: false,
     icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
     header: "h3",
-    beforeActivate: function(event, ui) {
-      if ( ui.newPanel.html() == '' ) {
-        var filepath = ui.newPanel.parent().data('filepath');
-        var url = '/bugs/file/?filepath=' + filepath;
-        $.getJSON( url, {format: 'json' }).done(function(data){
-          var new_buglist_node = build_buglist_node_for_filepath( data.bugs, filepath );
-          ui.newPanel.html( new_buglist_node );
-          add_accordion_to_bugs( new_buglist_node );
-        });
-      }
-    },
     activate: function(event, ui) {
-      jump_to_header( ui, filepathlist_node);
+      if ( ui.newPanel.length > 0 ) {
+        if ( !ui.newPanel.data("loaded") ) {
+          var filepath = ui.newPanel.parent().data('filepath');
+          var url = '/bugs/file/?filepath=' + filepath;
+          $.getJSON( url, {format: 'json' }).done(function(data){
+            var new_buglist_node = build_buglist_node_for_filepath( data.bugs, filepath );
+            ui.newPanel.html( new_buglist_node );
+            add_accordion_to_bugs( new_buglist_node );
+          });
+          ui.newPanel.data("loaded", 1);
+        }
+        jump_to_header( ui, filepathlist_node);
+      }
     }
   });
 }
-
-
 
 function add_accordion_to_authors( authorlist_node ) {
   $( authorlist_node ).accordion({
@@ -121,19 +119,20 @@ function add_accordion_to_authors( authorlist_node ) {
     active: false,
     icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
     header: "h3",
-    beforeActivate: function(event, ui) {
-      if ( ui.newPanel.html() == '' ) {
-        var author_name = ui.newPanel.parent().data('author_name');
-        var url = '/bugs/authors/' + author_name;
-        $.getJSON( url, {format: 'json' }).done(function(data){
-          var new_buglist_node = build_buglist_node_for_author( data.bugs, author_name );
-          ui.newPanel.html( new_buglist_node );
-          add_accordion_to_bugs( new_buglist_node );
-        });
-      }
-    },
     activate: function(event, ui) {
-      jump_to_header( ui, authorlist_node );
+      if ( ui.newPanel.length > 0 ) {
+        if ( !ui.newPanel.data("loaded") ) {
+          var author_name = ui.newPanel.parent().data('author_name');
+          var url = '/bugs/authors/' + author_name;
+          $.getJSON( url, {format: 'json' }).done(function(data){
+            var new_buglist_node = build_buglist_node_for_author( data.bugs, author_name );
+            ui.newPanel.html( new_buglist_node );
+            add_accordion_to_bugs( new_buglist_node );
+          });
+          ui.newPanel.data("loaded", 1);
+        }
+        jump_to_header( ui, authorlist_node );
+      }
     }
   });
 }

@@ -15,8 +15,7 @@
     [% IF author.author_name %] [%# FIXME Some patch don't have an author %]
       <div class="author" data-author_name="[% author.author_name %]" data-add="[% author.num_lines_added %]" data-del="[% author.num_lines_deleted %]">
         <h3>[% IF author.author_name %][% author.author_name %][% ELSE %]?[% END %] ([% author.num_bugs %] bugs / [% author.num_patches %] patches)</h3>
-        <!--<p>Loading... Please wait.</p>-->
-        <div></div>
+        <div>Loading...</div>
         <span class="infos">
           <span class="num_lines_added">
             <span class="ui-icon ui-icon-circle-plus"></span>

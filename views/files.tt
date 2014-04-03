@@ -14,8 +14,7 @@
   [% FOR file IN files %]
     <div class="filepath" data-filepath=[% file.filepath %] data-add=[% file.num_lines_added %] data-del=[% file.num_lines_deleted %]>
       <h3>[% file.filepath %]</h3>
-      <!--<p>Loading... Please wait.</p>-->
-      <div></div>
+      <div>Loading...</div>
       <span class="infos">
         <span class="num_lines_added">
           <span class="ui-icon ui-icon-circle-plus"></span>
