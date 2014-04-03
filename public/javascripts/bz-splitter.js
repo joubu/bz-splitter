@@ -36,6 +36,14 @@ function build_patchlist_node(patches, filepath) {
     return patch_list;
 }
 
+function jump_to_header( ui, accordion ) {
+  if ( ui.newHeader.length > 0 ) {
+    var scrollTop = $(accordion).scrollTop();
+    var top = $(ui.newHeader).offset().top;
+    $("html,body").animate({ scrollTop: scrollTop + top }, 200);
+  }
+}
+
 function add_accordion_to_bugs ( buglist_node ) {
   $( buglist_node ).accordion({
     collapsible: true,
@@ -67,13 +75,14 @@ function add_accordion_to_bugs ( buglist_node ) {
       }
     },
     activate: function(event, ui) {
+      jump_to_header( ui, buglist_node);
+
       if (ui.newPanel.html() != '' ) {
         $(ui.newPanel).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
       }
     }
   });
 }
-
 
 function add_accordion_to_filepaths( filepathlist_node ) {
   $( filepathlist_node ).accordion({
@@ -94,9 +103,14 @@ function add_accordion_to_filepaths( filepathlist_node ) {
           add_accordion_to_bugs( new_buglist_node );
         });
       }
+    },
+    activate: function(event, ui) {
+      jump_to_header( ui, filepathlist_node);
     }
   });
 }
+
+
 
 function add_accordion_to_authors( authorlist_node ) {
   $( authorlist_node ).accordion({
@@ -117,6 +131,9 @@ function add_accordion_to_authors( authorlist_node ) {
           add_accordion_to_bugs( new_buglist_node );
         });
       }
+    },
+    activate: function(event, ui) {
+      jump_to_header( ui, authorlist_node );
     }
   });
 }
