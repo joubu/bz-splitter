@@ -12,7 +12,7 @@ our $VERSION = '0.1';
 
 our $config = {
     bugzilla => {
-        base_url => 'http://bugs.koha-community.org/bugzilla3/show_bug.cgi?id=',
+        base_url => 'http://bugs.koha-community.org/bugzilla3/',
     }
 };
 
@@ -69,6 +69,7 @@ ajax '/patches/bug/:bug_id/file/' => sub {
     {
         filepath => $filepath,
         patches  => $patches,
+        base_url => $config->{bugzilla}{base_url},
     };
 };
 
@@ -87,6 +88,7 @@ ajax '/patches/bug/:bug_id/author/:author_name' => sub {
     {
         author_name => $author_name,
         patches     => $patches,
+        base_url => $config->{bugzilla}{base_url},
     };
 };
 
@@ -170,7 +172,12 @@ sub get_patches {
     my $author_name = $params->{author_name};
     return database->selectall_arrayref(
         q|
-            SELECT date, diff, attachment_description
+            SELECT  attachment_id,
+                    date,
+                    diff,
+                    attachment_description,
+                    author_name,
+                    filepath
             FROM diff
             WHERE bug_id = ? |
               . ( $filepath    ? q| AND filepath = ? |    : '' )

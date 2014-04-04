@@ -1,4 +1,5 @@
 - Add a decent README
 - Add unit tests (!)
-- Add links to bug and to attachment
+- Add links to bug
 - FIX syntax color for html patches
+- Search string in bugs

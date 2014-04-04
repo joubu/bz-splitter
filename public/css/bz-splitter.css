@@ -68,7 +68,7 @@ div.filepath, div.author {
     margin: 5px 0;
 }
 
-div.patch {
+div.patch, div.bug {
     position: relative;
     margin: 5px 0;
 }
@@ -84,16 +84,24 @@ div.patch {
     background: #D3D3D3;
 }
 
-div.patch .ui-accordion-content {
+div.patch .ui-accordion-content,
+div.bug   .ui-accordion-content
+{
     padding: 0;
 }
 
-div.patch h3 {
-    margin: 5px 0 0;
+div.patch h3, div.patch h4 {
+    margin: 0;
     text-align: center;
 }
+div.patch h3 a {
+    float: right;
+}
+div.patch h4 {
+    margin: 0 0 5px;
+}
 
-div.patch pre {
+div.bug pre {
     margin: 0;
     padding: 0;
 }
