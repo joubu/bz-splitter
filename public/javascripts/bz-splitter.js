@@ -1,7 +1,7 @@
 function build_buglist_node_for_filepath(bugs, filepath) {
     var bug_list = $('<div class="bug-list"></div>');
     $(bugs).each(function(){
-      var new_bug_node = $('<div class="bug" data-bug_id=' + this['bug_id'] + ' data-filepath=' + filepath + ' ></div>');
+      var new_bug_node = $('<div class="bug" data-bug_id=' + this['bug_id'] + ' data-filepath=' + filepath + ' data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'" ></div>');
       var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
       $(title).appendTo(new_bug_node);
       $('<div>Loading...</div>').appendTo(new_bug_node);
@@ -15,7 +15,7 @@ function build_buglist_node_for_filepath(bugs, filepath) {
 function build_buglist_node_for_author(bugs, author_name) {
     var bug_list = $('<div class="bug-list"></div>');
     $(bugs).each(function(){
-      var new_bug_node = $('<div class="bug" data-bug_id=' + this['bug_id'] + ' data-author_name="' + author_name + '" ></div>');
+      var new_bug_node = $('<div class="bug" data-bug_id=' + this['bug_id'] + ' data-author_name="' + author_name + '" data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'"></div>');
       var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
       $(title).appendTo(new_bug_node);
       $('<div>Loading...</div>').appendTo(new_bug_node);
@@ -112,8 +112,26 @@ function add_accordion_to_filepaths( filepathlist_node ) {
           var url = '/bugs/file/?filepath=' + filepath;
           $.getJSON( url, {format: 'json' }).done(function(data){
             var new_buglist_node = build_buglist_node_for_filepath( data.bugs, filepath );
-            ui.newPanel.html( new_buglist_node );
             add_accordion_to_bugs( new_buglist_node );
+            var tools_node = $('<div class="tools" style="display:inline;"></div>');
+            $(tools_node).append( $('<span class="bug-sort-by">Sort by:</span>') );
+            var sort_by_add_node = $('<span class="sort-by sort-by-add ui-icon ui-icon-circle-plus" title="sort by add"></span>');
+            $(sort_by_add_node).on('click', function(){
+                reorder_bugs_by_add(this);
+            });
+            var sort_by_del_node = $('<span class="sort-by sort-by-del ui-icon ui-icon-circle-minus" title="sort by del"></span>');
+            $(sort_by_del_node).on('click', function(){
+                reorder_bugs_by_del(this);
+            });
+            var sort_by_alpha_node = $('<span class="sort-by sort-by-alpha" title="sort by alpha">Alpha</span>');
+            $(sort_by_alpha_node).on('click', function(){
+                reorder_bugs_by_alpha(this);
+            });
+            $(tools_node).append( sort_by_add_node );
+            $(tools_node).append( sort_by_del_node );
+            $(tools_node).append( sort_by_alpha_node );
+            ui.newPanel.html( tools_node );
+            ui.newPanel.append(new_buglist_node);
           });
           ui.newPanel.data("loaded", 1);
         }
@@ -187,6 +205,24 @@ function reorder_authors_by_alpha(){
     };
     $('#author-list > div.author').sort(sortNumChanges).appendTo('#author-list');
 }
+function reorder_bugs_by_add(list_node){
+    function sortNumChanges(a,b){
+        return $(a).data("add") >$(b).data("add") ? -1 : 1;
+    };
+    $(list_node).parent().parent().find('div.bug').sort(sortNumChanges).appendTo($(list_node).parent().parent());
+}
+function reorder_bugs_by_del(list_node){
+    function sortNumChanges(a,b){
+        return $(a).data("del") >$(b).data("del") ? -1 : 1;
+    };
+    $(list_node).parent().parent().find('div.bug').sort(sortNumChanges).appendTo($(list_node).parent().parent());
+}
+function reorder_bugs_by_alpha(list_node){
+    function sortNumChanges(a,b){
+        return $(a).html() >$(b).html() ? 1 : -1;
+    };
+    $(list_node).parent().parent().find('div.bug').sort(sortNumChanges).appendTo($(list_node).parent().parent());
+}
 
 var delay = (function(){
   var timer = 0;
@@ -214,6 +250,18 @@ $(document).ready(function(){
   });
   $(".author-sort-by > .sort-by-alpha").click(function(){
     reorder_authors_by_alpha();
+  });
+  $(".bug-sort-by > .sort-by-add").click(function(){
+      console.log("add");
+    var list_node = $(this).parent().parent().parent().find("div.bug-list");
+    console.log(list_node);
+    reorder_bugs_by_add(list_node);
+  });
+  $(".bug-sort-by > .sort-by-del").click(function(){
+    reorder_bugs_by_del(this);
+  });
+  $(".bug-sort-by > .sort-by-alpha").click(function(){
+    reorder_bugs_by_alpha(this);
   });
 
   $("#filepath-filter").on('keyup', function(){
