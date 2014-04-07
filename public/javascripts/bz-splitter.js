@@ -1,7 +1,7 @@
 function build_buglist_node_for_filepath(bugs, filepath) {
     var bug_list = $('<div class="bug-list"></div>');
     $(bugs).each(function(){
-      var new_bug_node = $('<div class="bug" data-bug_id=' + this['bug_id'] + ' data-filepath=' + filepath + ' data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'" ></div>');
+      var new_bug_node = $('<div class="bug" data-bug_id="' + this['bug_id'] + '" data-filepath=' + filepath + ' data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'" ></div>');
       var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
       $(title).appendTo(new_bug_node);
       $('<div>Loading...</div>').appendTo(new_bug_node);
@@ -15,7 +15,7 @@ function build_buglist_node_for_filepath(bugs, filepath) {
 function build_buglist_node_for_author(bugs, author_name) {
     var bug_list = $('<div class="bug-list"></div>');
     $(bugs).each(function(){
-      var new_bug_node = $('<div class="bug" data-bug_id=' + this['bug_id'] + ' data-author_name="' + author_name + '" data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'"></div>');
+      var new_bug_node = $('<div class="bug" data-bug_id="' + this['bug_id'] + '" data-author_name="' + author_name + '" data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'"></div>');
       var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
       $(title).appendTo(new_bug_node);
       $('<div>Loading...</div>').appendTo(new_bug_node);
@@ -117,15 +117,15 @@ function add_accordion_to_filepaths( filepathlist_node ) {
             $(tools_node).append( $('<span class="bug-sort-by">Sort by:</span>') );
             var sort_by_add_node = $('<span class="sort-by sort-by-add ui-icon ui-icon-circle-plus" title="sort by add"></span>');
             $(sort_by_add_node).on('click', function(){
-                reorder_bugs_by_add(this);
+              reorder_nodes( $( new_buglist_node ), $("div.bug"), "add", "asc" );
             });
             var sort_by_del_node = $('<span class="sort-by sort-by-del ui-icon ui-icon-circle-minus" title="sort by del"></span>');
             $(sort_by_del_node).on('click', function(){
-                reorder_bugs_by_del(this);
+              reorder_nodes( $( new_buglist_node ), $("div.bug"), "del", "asc" );
             });
             var sort_by_alpha_node = $('<span class="sort-by sort-by-alpha" title="sort by alpha">Alpha</span>');
             $(sort_by_alpha_node).on('click', function(){
-                reorder_bugs_by_alpha(this);
+              reorder_nodes( $( new_buglist_node ), $("div.bug"), "bug_id", "desc" );
             });
             $(tools_node).append( sort_by_add_node );
             $(tools_node).append( sort_by_del_node );
@@ -168,60 +168,13 @@ function add_accordion_to_authors( authorlist_node ) {
   });
 }
 
-/* FIXME Refactor these ugly functions */
-function reorder_filepaths_by_add(){
-    function sortNumChanges(a,b){
-        return $(a).data("add") >$(b).data("add") ? -1 : 1;
+function reorder_nodes( parent_node, children_selector, sort_by_data, order_modifier ) {
+    function sort_by(a, b) {
+        if ( order_modifier == "desc" )
+            return $(a).data(sort_by_data) > $(b).data(sort_by_data) ? 1 : -1;
+        return $(a).data(sort_by_data) > $(b).data(sort_by_data) ? -1 : 1;
     };
-    $('#filepath-list > div.filepath').sort(sortNumChanges).appendTo('#filepath-list');
-}
-function reorder_filepaths_by_del(){
-    function sortNumChanges(a,b){
-        return $(a).data("del") >$(b).data("del") ? -1 : 1;
-    };
-    $('#filepath-list > div.filepath').sort(sortNumChanges).appendTo('#filepath-list');
-}
-function reorder_filepaths_by_alpha(){
-    function sortNumChanges(a,b){
-        return $(a).data("filepath") >$(b).data("filepath") ? 1 : -1;
-    };
-    $('#filepath-list > div.filepath').sort(sortNumChanges).appendTo('#filepath-list');
-}
-function reorder_authors_by_add(){
-    function sortNumChanges(a,b){
-        return $(a).data("add") >$(b).data("add") ? -1 : 1;
-    };
-    $('#author-list > div.author').sort(sortNumChanges).appendTo('#author-list');
-}
-function reorder_authors_by_del(){
-    function sortNumChanges(a,b){
-        return $(a).data("del") >$(b).data("del") ? -1 : 1;
-    };
-    $('#author-list > div.author').sort(sortNumChanges).appendTo('#author-list');
-}
-function reorder_authors_by_alpha(){
-    function sortNumChanges(a,b){
-        return $(a).data("author_name") >$(b).data("author_name") ? 1 : -1;
-    };
-    $('#author-list > div.author').sort(sortNumChanges).appendTo('#author-list');
-}
-function reorder_bugs_by_add(list_node){
-    function sortNumChanges(a,b){
-        return $(a).data("add") >$(b).data("add") ? -1 : 1;
-    };
-    $(list_node).parent().parent().find('div.bug').sort(sortNumChanges).appendTo($(list_node).parent().parent());
-}
-function reorder_bugs_by_del(list_node){
-    function sortNumChanges(a,b){
-        return $(a).data("del") >$(b).data("del") ? -1 : 1;
-    };
-    $(list_node).parent().parent().find('div.bug').sort(sortNumChanges).appendTo($(list_node).parent().parent());
-}
-function reorder_bugs_by_alpha(list_node){
-    function sortNumChanges(a,b){
-        return $(a).html() >$(b).html() ? 1 : -1;
-    };
-    $(list_node).parent().parent().find('div.bug').sort(sortNumChanges).appendTo($(list_node).parent().parent());
+    $(parent_node).find(children_selector).sort(sort_by).appendTo(parent_node);
 }
 
 var delay = (function(){
@@ -234,34 +187,22 @@ var delay = (function(){
 
 $(document).ready(function(){
   $(".filepath-sort-by > .sort-by-add").click(function(){
-    reorder_filepaths_by_add();
+    reorder_nodes( $("#filepath-list"), 'div.filepath', 'add', 'asc' );
   });
   $(".filepath-sort-by > .sort-by-del").click(function(){
-    reorder_filepaths_by_del();
+    reorder_nodes( $("#filepath-list"), 'div.filepath', 'del', 'asc' );
   });
   $(".filepath-sort-by > .sort-by-alpha").click(function(){
-    reorder_filepaths_by_alpha();
+    reorder_nodes( $("#filepath-list"), 'div.filepath', 'filepath', 'desc' );
   });
   $(".author-sort-by > .sort-by-add").click(function(){
-    reorder_authors_by_add();
+    reorder_nodes( $("#author-list"), 'div.author', 'add', 'asc' );
   });
   $(".author-sort-by > .sort-by-del").click(function(){
-    reorder_authors_by_del();
+    reorder_nodes( $("#author-list"), 'div.author', 'del', 'asc' );
   });
   $(".author-sort-by > .sort-by-alpha").click(function(){
-    reorder_authors_by_alpha();
-  });
-  $(".bug-sort-by > .sort-by-add").click(function(){
-      console.log("add");
-    var list_node = $(this).parent().parent().parent().find("div.bug-list");
-    console.log(list_node);
-    reorder_bugs_by_add(list_node);
-  });
-  $(".bug-sort-by > .sort-by-del").click(function(){
-    reorder_bugs_by_del(this);
-  });
-  $(".bug-sort-by > .sort-by-alpha").click(function(){
-    reorder_bugs_by_alpha(this);
+    reorder_nodes( $("#author-list"), 'div.author', 'author_name', 'desc' );
   });
 
   $("#filepath-filter").on('keyup', function(){
