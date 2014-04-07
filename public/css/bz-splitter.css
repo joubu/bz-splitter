@@ -74,7 +74,7 @@ div.patch, div.bug {
 }
 
 .ui-accordion-header {
-    padding: 0 2em;
+    padding: 0 15% 0 2em;
 }
 
 .ui-accordion-content, .ui-widget-content {
