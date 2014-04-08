@@ -96,6 +96,29 @@ function add_accordion_to_bugs ( buglist_node ) {
   });
 }
 
+function build_tools_for_bugs( buglist_node ) {
+  var tools_node = $('<div class="tools" style="display:inline;"></div>');
+  var sort_by_node = $('<span class="bug-sort-by">Sort by:</span>');
+  var sort_by_alpha_node = $('<span class="sort-by sort-by-alpha" title="sort by alpha">Alpha</span>');
+  $(sort_by_alpha_node).on('click', function(){
+    reorder_nodes( $( buglist_node ), $("div.bug"), "bug_id", "desc" );
+  });
+  var sort_by_add_node = $('<span class="sort-by sort-by-add ui-icon ui-icon-circle-plus" title="sort by add"></span>');
+  $(sort_by_add_node).on('click', function(){
+    reorder_nodes( $( buglist_node ), $("div.bug"), "add", "asc" );
+  });
+  var sort_by_del_node = $('<span class="sort-by sort-by-del ui-icon ui-icon-circle-minus" title="sort by del"></span>');
+  $(sort_by_del_node).on('click', function(){
+    reorder_nodes( $( buglist_node ), $("div.bug"), "del", "asc" );
+  });
+
+  $(sort_by_node).append( sort_by_alpha_node );
+  $(sort_by_node).append( sort_by_add_node );
+  $(sort_by_node).append( sort_by_del_node );
+  $(tools_node).append( sort_by_node );
+  return tools_node;
+}
+
 function add_accordion_to_filepaths( filepathlist_node ) {
   $( filepathlist_node ).accordion({
     collapsible: true,
@@ -113,24 +136,8 @@ function add_accordion_to_filepaths( filepathlist_node ) {
           $.getJSON( url, {format: 'json' }).done(function(data){
             var new_buglist_node = build_buglist_node_for_filepath( data.bugs, filepath );
             add_accordion_to_bugs( new_buglist_node );
-            var tools_node = $('<div class="tools" style="display:inline;"></div>');
-            $(tools_node).append( $('<span class="bug-sort-by">Sort by:</span>') );
-            var sort_by_add_node = $('<span class="sort-by sort-by-add ui-icon ui-icon-circle-plus" title="sort by add"></span>');
-            $(sort_by_add_node).on('click', function(){
-              reorder_nodes( $( new_buglist_node ), $("div.bug"), "add", "asc" );
-            });
-            var sort_by_del_node = $('<span class="sort-by sort-by-del ui-icon ui-icon-circle-minus" title="sort by del"></span>');
-            $(sort_by_del_node).on('click', function(){
-              reorder_nodes( $( new_buglist_node ), $("div.bug"), "del", "asc" );
-            });
-            var sort_by_alpha_node = $('<span class="sort-by sort-by-alpha" title="sort by alpha">Alpha</span>');
-            $(sort_by_alpha_node).on('click', function(){
-              reorder_nodes( $( new_buglist_node ), $("div.bug"), "bug_id", "desc" );
-            });
-            $(tools_node).append( sort_by_add_node );
-            $(tools_node).append( sort_by_del_node );
-            $(tools_node).append( sort_by_alpha_node );
-            ui.newPanel.html( tools_node );
+            var new_tools_node = build_tools_for_bugs( new_buglist_node );
+            ui.newPanel.html(new_tools_node);
             ui.newPanel.append(new_buglist_node);
           });
           ui.newPanel.data("loaded", 1);
@@ -157,8 +164,10 @@ function add_accordion_to_authors( authorlist_node ) {
           var url = '/bugs/authors/' + author_name;
           $.getJSON( url, {format: 'json' }).done(function(data){
             var new_buglist_node = build_buglist_node_for_author( data.bugs, author_name );
-            ui.newPanel.html( new_buglist_node );
             add_accordion_to_bugs( new_buglist_node );
+            var new_tools_node = build_tools_for_bugs( new_buglist_node );
+            ui.newPanel.html(new_tools_node);
+            ui.newPanel.append(new_buglist_node);
           });
           ui.newPanel.data("loaded", 1);
         }

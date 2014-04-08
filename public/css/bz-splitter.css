@@ -138,7 +138,9 @@ span.infos {
     padding: 0 1%;
 }
 
-.tools span.filepath-sort-by, .tools span.author-sort-by {
+.tools span.filepath-sort-by,
+.tools span.author-sort-by,
+.tools span.bug-sort-by {
     float: right;
 }
 .tools span.sort-by {
