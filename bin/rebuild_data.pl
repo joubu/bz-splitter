@@ -68,7 +68,7 @@ for my $bug_number ( @bug_numbers ) {
     say "Bug $bug_number...";
     my @attachments = @{
         $dbh->selectall_arrayref( q|
-        SELECT bugs.short_desc, bugs.bug_status, attach_data.thedata, attachments.attach_id, attachments.description, attachments.creation_ts, profiles.realname
+        SELECT bugs.short_desc, bugs.bug_status, attach_data.thedata, attachments.attach_id, attachments.description, attachments.creation_ts
         FROM attach_data
         LEFT JOIN attachments ON attach_data.id = attachments.attach_id
         LEFT JOIN profiles ON attachments.submitter_id = profiles.userid
@@ -84,10 +84,10 @@ for my $bug_number ( @bug_numbers ) {
         $details{bug_id} = $bug_number;
         $details{bug_title} = $attachment->{short_desc};
         $details{bug_status} = $attachment->{bug_status};
-        $details{hunks} = $hunks;
+        $details{hunks} = $hunks->{hunks};
         $details{attachment_id} = $attachment->{attach_id};
         $details{attachment_description} = $attachment->{description};
-        $details{author} = $attachment->{realname};
+        $details{author} = $hunks->{author_name};
         $details{date} = $attachment->{creation_ts};
         push @patches, \%details;
     }
@@ -161,19 +161,25 @@ sub insert_patches_data {
 
 sub get_hunks {
     my ( $patch_content ) = @_;
-    my ( $filename, %data );
+    my ( $author_name, $filename, %data );
     for my $line ( split '\n', $patch_content ) {
         next if $line =~ m|---\s.*|; # TODO Maybe should we manage deleted files here.
+        if ( $line =~ m|^From: ([^<]*)<.*| ) {
+            $author_name = $1;
+            $author_name=~ s/"//g;
+            next;
+        }
         if ( $line =~ m|\+\+\+\sb/(.*)| ) {
             $filename = $1;
             next;
         }
-        next unless $filename;
+        next unless $filename and $author_name;
         next if $line =~ m|^--\s|;
-        $data{$filename}{num_lines_added}  ++ if $line =~ m|^\+|;
-        $data{$filename}{num_lines_deleted}++ if $line =~ m|^-|;
-        push @{ $data{$filename}{diff} }, $line;
+        $data{hunks}{$filename}{num_lines_added}  ++ if $line =~ m|^\+|;
+        $data{hunks}{$filename}{num_lines_deleted}++ if $line =~ m|^-|;
+        push @{ $data{hunks}{$filename}{diff} }, $line;
     }
 
+    $data{author_name} = $author_name;
     return \%data;
 }
