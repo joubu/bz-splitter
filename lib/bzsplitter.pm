@@ -114,7 +114,7 @@ sub get_authors {
             SELECT  distinct(author_name),
                     SUM(num_lines_added) AS num_lines_added,
                     SUM(num_lines_deleted) AS num_lines_deleted,
-                    COUNT(diff) AS num_patches,
+                    COUNT(DISTINCT(attachment_id)) AS num_patches,
                     COUNT(DISTINCT(bug_id)) AS num_bugs
             FROM diff
             GROUP BY author_name
