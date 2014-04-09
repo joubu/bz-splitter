@@ -3,6 +3,8 @@
 use Modern::Perl;
 
 use DBI;
+use URI::Escape qw( uri_unescape );
+
 
 # CREATE DATABASE bzsplitter;
 # Add privileges on bzsplitter to bugs user
@@ -33,16 +35,22 @@ my @statuses = (
     'Failed QA',
 );
 
+our $db_opts = ($config->{bugzilla}{db_driver} eq 'mysql')
+             ? { RaiseError => 1, mysql_enable_utf8 => 1 }
+             : ($config->{bugzilla}{db_driver} eq 'Pg')
+                ? { RaiseError => 1, pg_enable_utf8    => 1 }
+                : {};
+
 sub get_bugzilla_dbh {
   my $dbh = DBI->connect( "DBI:$config->{bugzilla}{db_driver}:dbname=$config->{bugzilla}{db_name};host=$config->{bugzilla}{db_host};port=$config->{bugzilla}{db_port}",
-    $config->{bugzilla}{db_user}, $config->{bugzilla}{db_passwd}, { 'RaiseError' => 1 } )
+    $config->{bugzilla}{db_user}, $config->{bugzilla}{db_passwd}, $db_opts )
   or die $DBI::errstr;
   return $dbh;
 }
 
 sub get_stats_dbh {
   my $dbh = DBI->connect( "DBI:$config->{stats}{db_driver}:dbname=$config->{stats}{db_name};host=$config->{stats}{db_host};port=$config->{stats}{db_port}",
-    $config->{stats}{db_user}, $config->{stats}{db_passwd}, { 'RaiseError' => 1 } )
+    $config->{stats}{db_user}, $config->{stats}{db_passwd}, $db_opts )
   or die $DBI::errstr;
   return $dbh;
 }
@@ -180,6 +188,20 @@ sub get_hunks {
         push @{ $data{hunks}{$filename}{diff} }, $line;
     }
 
-    $data{author_name} = $author_name;
+    $data{author_name} = email_decode( $author_name );
     return \%data;
+}
+
+sub email_decode {
+    my ( $email ) = @_;
+    return q{} unless $email;
+    my @pairs = split '\?', $email;
+    return $pairs[0] if @pairs <= 1;
+    return $pairs[3] unless $pairs[1] =~ m|utf-8|i;
+    $email = $pairs[3];
+    $email =~ s/=/%/g;
+    $email = URI::Escape::uri_unescape( $email );
+
+    return $email;
+
 }
