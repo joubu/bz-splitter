@@ -1,41 +1,24 @@
-function build_buglist_node_for_filepath(bugs, filepath) {
+function build_buglist_node(params) {
+    var bugs = params.bugs;
+    var datatype = params.datatype;
+    var data;
+    if ( datatype == 'filepath' ) {
+        data = params.filepath;
+    } else if ( datatype == 'author_name' ) {
+        data = params.author_name;
+    } else if ( datatype == 'pattern' ) {
+        data = params.pattern;
+    }
+
     var bug_list = $('<div class="bug-list"></div>');
     $(bugs).each(function(){
-      var new_bug_node = $('<div class="bug" data-bug_id="' + this['bug_id'] + '" data-filepath=' + filepath + ' data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'" ></div>');
+      var new_bug_node = $('<div class="bug" data-bug_id="' + this['bug_id'] + '" data-'+datatype+'="' + data + '" data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'" ></div>');
       var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
       $(title).appendTo(new_bug_node);
       $('<div>Loading...</div>').appendTo(new_bug_node);
       $(new_bug_node).appendTo(bug_list);
-
-      $('<span class="infos"><span class="num_lines_added" title="This patch adds '+this['num_lines_added']+' lines in '+filepath+'"><span class="ui-icon ui-icon-circle-plus"></span>'+this['num_lines_added']+'</span><span class="num_lines_deleted" title="This patch removes '+this['num_lines_deleted']+' lines in '+filepath+'"><span class="ui-icon ui-icon-circle-minus"></span>'+this['num_lines_deleted'] + '</span>').appendTo(new_bug_node);
-    });
-    return bug_list;
-}
-
-function build_buglist_node_for_author(bugs, author_name) {
-    var bug_list = $('<div class="bug-list"></div>');
-    $(bugs).each(function(){
-      var new_bug_node = $('<div class="bug" data-bug_id="' + this['bug_id'] + '" data-author_name="' + author_name + '" data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'"></div>');
-      var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
-      $(title).appendTo(new_bug_node);
-      $('<div>Loading...</div>').appendTo(new_bug_node);
 
       $('<span class="infos"><span class="num_lines_added" title="This patch adds '+this['num_lines_added']+' lines"><span class="ui-icon ui-icon-circle-plus"></span>'+this['num_lines_added']+'</span><span class="num_lines_deleted" title="This patch removes '+this['num_lines_deleted']+' lines"><span class="ui-icon ui-icon-circle-minus"></span>'+this['num_lines_deleted'] + '</span>').appendTo(new_bug_node);
-      $(new_bug_node).appendTo(bug_list);
-    });
-    return bug_list;
-}
-
-function build_buglist_node_for_pattern(bugs, pattern) {
-    var bug_list = $('<div class="bug-list"></div>');
-    $(bugs).each(function(){
-      var new_bug_node = $('<div class="bug" data-bug_id="' + this['bug_id'] + '" data-pattern="' + pattern + '" data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'"></div>');
-      var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
-      $(title).appendTo(new_bug_node);
-      $('<div>Loading...</div>').appendTo(new_bug_node);
-
-      $('<span class="infos"><span class="num_lines_added" title="This patch adds '+this['num_lines_added']+' lines"><span class="ui-icon ui-icon-circle-plus"></span>'+this['num_lines_added']+'</span><span class="num_lines_deleted" title="This patch removes '+this['num_lines_deleted']+' lines"><span class="ui-icon ui-icon-circle-minus"></span>'+this['num_lines_deleted'] + '</span>').appendTo(new_bug_node);
-      $(new_bug_node).appendTo(bug_list);
     });
     return bug_list;
 }
@@ -161,7 +144,7 @@ function add_accordion_to_filepaths( filepathlist_node ) {
           var filepath = ui.newPanel.parent().data('filepath');
           var url = '/bugs/file/?filepath=' + filepath;
           $.getJSON( url, {format: 'json' }).done(function(data){
-            var new_buglist_node = build_buglist_node_for_filepath( data.bugs, filepath );
+            var new_buglist_node = build_buglist_node( { bugs: data.bugs, datatype: 'filepath', filepath: filepath } );
             add_accordion_to_bugs( new_buglist_node );
             var new_tools_node = build_tools_for_bugs( new_buglist_node );
             ui.newPanel.html(new_tools_node);
@@ -190,7 +173,7 @@ function add_accordion_to_authors( authorlist_node ) {
           var author_name = ui.newPanel.parent().data('author_name');
           var url = '/bugs/authors/' + author_name;
           $.getJSON( url, {format: 'json' }).done(function(data){
-            var new_buglist_node = build_buglist_node_for_author( data.bugs, author_name );
+            var new_buglist_node = build_buglist_node( { bugs: data.bugs, datatype: 'author_name', author_name: author_name } );
             add_accordion_to_bugs( new_buglist_node );
             var new_tools_node = build_tools_for_bugs( new_buglist_node );
             ui.newPanel.html(new_tools_node);
@@ -278,7 +261,7 @@ $(document).ready(function(){
     delay(function(){
       var url = '/bugs/patterns/' + pattern;
       $.getJSON( url, {format: 'json' }).done(function(data){
-        var new_buglist_node = build_buglist_node_for_pattern(data.bugs, data.pattern);
+        var new_buglist_node = build_buglist_node( { bugs: data.bugs, datatype: 'pattern', pattern: data.pattern } );
         add_accordion_to_bugs( new_buglist_node );
         var new_tools_node = build_tools_for_bugs( new_buglist_node );
         $("#bug-list").html(new_tools_node);
