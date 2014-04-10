@@ -42,7 +42,7 @@ get '/patterns' => sub {
 
 ajax '/bugs/file/' => sub {
     my $filepath = params->{filepath};
-    my $bugs = get_bugs_by_filepath( { filepath => $filepath } );
+    my $bugs = get_bugs( { filepath => $filepath } );
     {
         bugs     => $bugs,
         base_url => $config->{bugzilla}{base_url},
@@ -51,7 +51,7 @@ ajax '/bugs/file/' => sub {
 
 ajax '/bugs/authors/:author_name' => sub {
     my $author_name = params->{author_name};
-    my $bugs = get_bugs_by_authorname( { author_name => $author_name } );
+    my $bugs = get_bugs( { author_name => $author_name } );
     {
         author_name => $author_name,
         bugs        => $bugs,
@@ -60,7 +60,7 @@ ajax '/bugs/authors/:author_name' => sub {
 
 ajax '/bugs/patterns/:pattern' => sub {
     my $pattern = params->{pattern};
-    my $bugs = get_bugs_by_pattern( { pattern => $pattern, limit => 100 } );
+    my $bugs = get_bugs( { pattern => $pattern, limit => 100 } );
     {
         pattern => $pattern,
         bugs    => $bugs,
@@ -157,29 +157,12 @@ sub get_authors {
     );
 }
 
-sub get_bugs_by_filepath {
-    my ($params) = @_;
-    my $filepath = $params->{filepath};
-    return database->selectall_arrayref(
-        q|
-            SELECT  DISTINCT(bug_id),
-                    bug_title,
-                    bug_status,
-                    SUM(num_lines_added) AS num_lines_added,
-                    SUM(num_lines_deleted) AS num_lines_deleted
-            FROM diff
-            WHERE filepath = ?
-            GROUP BY bug_id
-            ORDER BY bug_id
-        |,
-        { Slice => {} },
-        $filepath
-    );
-}
-
-sub get_bugs_by_authorname {
-    my ($params) = @_;
+sub get_bugs {
+    my ($params)    = @_;
+    my $filepath    = $params->{filepath};
     my $author_name = $params->{author_name};
+    my $pattern     = $params->{pattern};
+    my $limit       = $params->{limit};
     return database->selectall_arrayref(
         q|
             SELECT  DISTINCT(bug_id),
@@ -188,35 +171,22 @@ sub get_bugs_by_authorname {
                     SUM(num_lines_added) AS num_lines_added,
                     SUM(num_lines_deleted) AS num_lines_deleted
             FROM diff
-            WHERE author_name = ?
+            WHERE 1 |
+          . ( $filepath    ? q| AND filepath = ? |    : '' )
+          . ( $author_name ? q| AND author_name = ? | : '' )
+          . ( $pattern     ? q| AND diff LIKE ? |     : '' )
+          . q|
             GROUP BY bug_id
             ORDER BY bug_id
-        |,
+            |
+          . ( $limit ? qq| LIMIT $limit| : '' ),
         { Slice => {} },
-        $author_name
-    );
-}
+        (
+            ( $filepath    ? $filepath    : () ),
+            ( $author_name ? $author_name : () ),
+            ( $pattern     ? "%$pattern%" : () ),
 
-sub get_bugs_by_pattern {
-    my ($params) = @_;
-    my $pattern = $params->{pattern};
-    my $limit = $params->{limit};
-    return database->selectall_arrayref(
-        q|
-            SELECT  DISTINCT(bug_id),
-                    bug_title,
-                    bug_status,
-                    SUM(num_lines_added) AS num_lines_added,
-                    SUM(num_lines_deleted) AS num_lines_deleted
-            FROM diff
-            WHERE diff LIKE ?
-            GROUP BY bug_id
-            ORDER BY bug_id
-        |
-        . ( $limit ? qq| LIMIT $limit| : '' )
-        ,
-        { Slice => {} },
-        "%$pattern%"
+        )
     );
 }
 
