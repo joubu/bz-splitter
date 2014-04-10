@@ -1,14 +1,7 @@
 function build_buglist_node(params) {
     var bugs = params.bugs;
     var datatype = params.datatype;
-    var data;
-    if ( datatype == 'filepath' ) {
-        data = params.filepath;
-    } else if ( datatype == 'author_name' ) {
-        data = params.author_name;
-    } else if ( datatype == 'pattern' ) {
-        data = params.pattern;
-    }
+    var data = params.data;
 
     var bug_list = $('<div class="bug-list"></div>');
     $(bugs).each(function(){
@@ -129,8 +122,8 @@ function build_tools_for_bugs( buglist_node ) {
   return tools_node;
 }
 
-function add_accordion_to_filepaths( filepathlist_node ) {
-  $( filepathlist_node ).accordion({
+function add_accordion_to_list( list_node, datatype ) {
+  $( list_node ).accordion({
     collapsible: true,
     clearStyle: true,
     autoHeight: true,
@@ -141,10 +134,19 @@ function add_accordion_to_filepaths( filepathlist_node ) {
     activate: function(event, ui) {
       if ( ui.newPanel.length > 0 ) {
         if ( !ui.newPanel.data("loaded") ) {
-          var filepath = ui.newPanel.parent().data('filepath');
-          var url = '/bugs/file/?filepath=' + filepath;
-          $.getJSON( url, {format: 'json' }).done(function(data){
-            var new_buglist_node = build_buglist_node( { bugs: data.bugs, datatype: 'filepath', filepath: filepath } );
+          var data = ui.newPanel.parent().data(datatype);
+          var url;
+          if ( datatype == 'filepath' ) {
+            url = '/bugs/file/?filepath=' + data;
+          } else if ( datatype == 'author_name' ) {
+            url = '/bugs/authors/' + data;
+          } else if ( datatype == 'pattern' ) {
+            // Not implemented yet
+          } else {
+            return;
+          }
+          $.getJSON( url, {format: 'json' }).done(function(json_data){
+            var new_buglist_node = build_buglist_node( { bugs: json_data.bugs, datatype: datatype, data: data } );
             add_accordion_to_bugs( new_buglist_node );
             var new_tools_node = build_tools_for_bugs( new_buglist_node );
             ui.newPanel.html(new_tools_node);
@@ -152,36 +154,7 @@ function add_accordion_to_filepaths( filepathlist_node ) {
           });
           ui.newPanel.data("loaded", 1);
         }
-        jump_to_header( ui, filepathlist_node);
-      }
-    }
-  });
-}
-
-function add_accordion_to_authors( authorlist_node ) {
-  $( authorlist_node ).accordion({
-    collapsible: true,
-    clearStyle: true,
-    autoHeight: true,
-    heightStyle: 'content',
-    active: false,
-    icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
-    header: "h3",
-    activate: function(event, ui) {
-      if ( ui.newPanel.length > 0 ) {
-        if ( !ui.newPanel.data("loaded") ) {
-          var author_name = ui.newPanel.parent().data('author_name');
-          var url = '/bugs/authors/' + author_name;
-          $.getJSON( url, {format: 'json' }).done(function(data){
-            var new_buglist_node = build_buglist_node( { bugs: data.bugs, datatype: 'author_name', author_name: author_name } );
-            add_accordion_to_bugs( new_buglist_node );
-            var new_tools_node = build_tools_for_bugs( new_buglist_node );
-            ui.newPanel.html(new_tools_node);
-            ui.newPanel.append(new_buglist_node);
-          });
-          ui.newPanel.data("loaded", 1);
-        }
-        jump_to_header( ui, authorlist_node );
+        jump_to_header( ui, list_node);
       }
     }
   });
@@ -261,7 +234,7 @@ $(document).ready(function(){
     delay(function(){
       var url = '/bugs/patterns/' + pattern;
       $.getJSON( url, {format: 'json' }).done(function(data){
-        var new_buglist_node = build_buglist_node( { bugs: data.bugs, datatype: 'pattern', pattern: data.pattern } );
+        var new_buglist_node = build_buglist_node( { bugs: data.bugs, datatype: 'pattern', data: data.pattern } );
         add_accordion_to_bugs( new_buglist_node );
         var new_tools_node = build_tools_for_bugs( new_buglist_node );
         $("#bug-list").html(new_tools_node);
@@ -271,10 +244,10 @@ $(document).ready(function(){
   });
 
   $(function() {
-    add_accordion_to_filepaths( $("#filepath-list") );
+    add_accordion_to_list( $("#filepath-list"), 'filepath' );
   });
   $(function() {
-    add_accordion_to_authors( $("#author-list") );
+    add_accordion_to_list( $("#author-list"), 'author_name' );
   });
 });
 
