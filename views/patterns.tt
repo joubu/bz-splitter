@@ -1,0 +1,9 @@
+<h2>Browse by patterns</h2>
+
+<div class="tools">
+  <input class="filter" id="pattern-filter" placeholder="Filter by patterns"/>
+</div>
+
+
+Note: This search returns 100 first results.
+<div id="bug-list"></div>

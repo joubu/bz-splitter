@@ -36,6 +36,10 @@ get '/authors' => sub {
     };
 };
 
+get '/patterns' => sub {
+    template 'patterns';
+};
+
 ajax '/bugs/file/' => sub {
     my $filepath = params->{filepath};
     my $bugs = get_bugs_by_filepath( { filepath => $filepath } );
@@ -51,6 +55,15 @@ ajax '/bugs/authors/:author_name' => sub {
     {
         author_name => $author_name,
         bugs        => $bugs,
+    };
+};
+
+ajax '/bugs/patterns/:pattern' => sub {
+    my $pattern = params->{pattern};
+    my $bugs = get_bugs_by_pattern( { pattern => $pattern, limit => 100 } );
+    {
+        pattern => $pattern,
+        bugs    => $bugs,
     };
 };
 
@@ -88,6 +101,25 @@ ajax '/patches/bug/:bug_id/author/:author_name' => sub {
     {
         author_name => $author_name,
         patches     => $patches,
+        base_url => $config->{bugzilla}{base_url},
+    };
+};
+
+ajax '/patches/bug/:bug_id/pattern/:pattern' => sub {
+    my $bug_id      = param('bug_id');
+    my $pattern     = param('pattern');
+    my $patches     = get_patches(
+        {
+            bug_id  => $bug_id,
+            pattern => $pattern,
+        }
+    );
+    for my $patch (@$patches) {
+        $patch->{diff} = encode_entities( $patch->{diff} );
+    }
+    {
+        pattern  => $pattern,
+        patches  => $patches,
         base_url => $config->{bugzilla}{base_url},
     };
 };
@@ -165,11 +197,35 @@ sub get_bugs_by_authorname {
     );
 }
 
+sub get_bugs_by_pattern {
+    my ($params) = @_;
+    my $pattern = $params->{pattern};
+    my $limit = $params->{limit};
+    return database->selectall_arrayref(
+        q|
+            SELECT  DISTINCT(bug_id),
+                    bug_title,
+                    bug_status,
+                    SUM(num_lines_added) AS num_lines_added,
+                    SUM(num_lines_deleted) AS num_lines_deleted
+            FROM diff
+            WHERE diff LIKE ?
+            GROUP BY bug_id
+            ORDER BY bug_id
+        |
+        . ( $limit ? qq| LIMIT $limit| : '' )
+        ,
+        { Slice => {} },
+        "%$pattern%"
+    );
+}
+
 sub get_patches {
     my ($params)    = @_;
     my $bug_id      = $params->{bug_id};
     my $filepath    = $params->{filepath};
     my $author_name = $params->{author_name};
+    my $pattern     = $params->{pattern};
     return database->selectall_arrayref(
         q|
             SELECT  attachment_id,
@@ -182,13 +238,15 @@ sub get_patches {
             WHERE bug_id = ? |
               . ( $filepath    ? q| AND filepath = ? |    : '' )
               . ( $author_name ? q| AND author_name = ? | : '' )
+              . ( $pattern     ? q| AND diff LIKE ? |   : '' )
               . q| ORDER BY date
         |,
         { Slice => {} },
         (
             $bug_id,
             ( $filepath    ? $filepath    : () ),
-            ( $author_name ? $author_name : () )
+            ( $author_name ? $author_name : () ),
+            ( $pattern     ? "%$pattern%" : () ),
         )
     );
 }
