@@ -16,25 +16,27 @@ function build_buglist_node(params) {
     return bug_list;
 }
 
-function build_patchlist_node(patches, base_url, display) {
+function build_patchlist_node(params) {
+    var patches = params.patches;
+    var base_url = params.base_url;
+    var titles = params.titles;
     var patch_list = $('<div class="patch-list"></div>');
     $(patches).each(function(){
+      var patch = this;
       var new_patch_node = $('<div class="patch"></div>');
-      var title_node = $('<h3>'+this['attachment_description']+'<a href="'+base_url+'attachment.cgi?id='+this['attachment_id']+'" alt="Go to the attachment" title="Go to the attachment"><span class="ui-icon ui-icon-extlink"></span></a></h3>');
-      $(new_patch_node).append(title_node);
-      if ( display == 'authors' ) {
-        var author_node = $('<h4 class="author">'+this['author_name']+'</h4>');
-        $(new_patch_node).append(author_node);
-      }
-      if ( display == 'filepaths' ) {
-        var filepath_node = $('<h4 class="filepaths">'+this['filepath']+'</h4>');
-        $(new_patch_node).append(filepath_node);
-      }
-      if ( display == 'patterns' ) {
-        var pattern_node = $('<h4 class="pattern">'+this['pattern']+'</h4>');
-        $(new_patch_node).append(pattern_node);
-      }
-      var diff_node = $('<pre><code>'+this['diff']+'</code></pre></div>');
+      var title_node;
+      $.each(titles, function(tag, element_to_display){
+          title_node = $('<'+tag+' class='+element_to_display+'></'+tag+'>');
+          if ( element_to_display == 'attachment' ) {
+            $(title_node).html(patch['attachment_description']+'<a href="'+base_url+'attachment.cgi?id='+patch['attachment_id']+'" alt="Go to the attachment" title="Go to the attachment"><span class="ui-icon ui-icon-extlink"></span></a>');
+          } else if ( element_to_display == 'author' ) {
+            $(title_node).html(patch['author_name']);
+          } else if ( element_to_display == 'filepath' ) {
+            $(title_node).html(patch['filepath']);
+          }
+          $(new_patch_node).append(title_node);
+      });
+      var diff_node = $('<pre><code>'+patch['diff']+'</code></pre></div>');
       $(new_patch_node).append(diff_node);
       $(patch_list).append(new_patch_node);
     });
@@ -68,25 +70,22 @@ function add_accordion_to_bugs ( buglist_node ) {
           var pattern = parent_node.data('pattern');
           if ( filepath ) {
             var url = '/patches/bug/'+bug_id+'/file/?filepath=' + filepath;
-            var display = 'authors';
             $.getJSON( url, {format: 'json' }).done(function(data){
-              var html = build_patchlist_node( data.patches, data.base_url, display );
+              var html = build_patchlist_node({ patches: data.patches, base_url: data.base_url, titles: {h3: 'attachment', h4: 'author'} });
               $(html).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
               ui.newPanel.html( html );
             });
           } else if ( author_name ) {
             var url = '/patches/bug/'+bug_id+'/author/' + author_name;
-            var display = 'filepaths';
             $.getJSON( url, {format: 'json' }).done(function(data){
-              var html = build_patchlist_node( data.patches, data.base_url, display );
+              var html = build_patchlist_node({ patches: data.patches, base_url: data.base_url, titles: {h3: 'attachment', h4: 'filepath'} });
               $(html).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
               ui.newPanel.html( html );
             });
           } else {
             var url = '/patches/bug/'+bug_id+'/pattern/' + pattern;
-            var display = 'patterns';
             $.getJSON( url, {format: 'json' }).done(function(data){
-              var html = build_patchlist_node( data.patches, data.base_url, display );
+              var html = build_patchlist_node({ patches: data.patches, base_url: data.base_url, titles: {h3: 'attachment', h4: 'author'} });
               $(html).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
               ui.newPanel.html( html );
             });
