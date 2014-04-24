@@ -177,8 +177,9 @@ sub get_hunks {
             $author_name=~ s/"//g;
             next;
         }
-        if ( $line =~ m|\+\+\+\sb/(.*)| ) {
+        if ( $line =~ m|\+\+\+\sb/(.*)$| ) {
             $filename = $1;
+            $filename =~ s/^\s+|\s+$//g;
             next;
         }
         next unless $filename and $author_name;
