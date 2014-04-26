@@ -130,7 +130,9 @@ sub get_files {
         q|
             SELECT  distinct(filepath),
                     SUM(num_lines_added) AS num_lines_added,
-                    SUM(num_lines_deleted) AS num_lines_deleted
+                    SUM(num_lines_deleted) AS num_lines_deleted,
+                    COUNT(DISTINCT(attachment_id)) AS num_patches,
+                    COUNT(DISTINCT(bug_id)) AS num_bugs
             FROM diff
             GROUP BY filepath
             ORDER BY filepath

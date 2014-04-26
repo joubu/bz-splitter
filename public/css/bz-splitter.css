@@ -101,9 +101,13 @@ div.patch h4 {
     margin: 0 0 5px;
 }
 
-div.bug pre {
+div.bug pre, .hljs {
     margin: 0;
     padding: 0;
+}
+
+pre {
+    white-space: pre-wrap;
 }
 
 span.infos {

@@ -36,7 +36,7 @@ function build_patchlist_node(params) {
           }
           $(new_patch_node).append(title_node);
       });
-      var diff_node = $('<pre><code>'+patch['diff']+'</code></pre></div>');
+      var diff_node = $('<pre><code>'+patch['diff']+'</code></pre>');
       $(new_patch_node).append(diff_node);
       $(patch_list).append(new_patch_node);
     });
@@ -121,42 +121,73 @@ function build_tools_for_bugs( buglist_node ) {
   return tools_node;
 }
 
-function add_accordion_to_list( list_node, datatype ) {
-  $( list_node ).accordion({
-    collapsible: true,
-    clearStyle: true,
-    autoHeight: true,
-    heightStyle: 'content',
-    active: false,
-    icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
-    header: "h3",
-    activate: function(event, ui) {
-      if ( ui.newPanel.length > 0 ) {
-        if ( !ui.newPanel.data("loaded") ) {
-          var data = ui.newPanel.parent().data(datatype);
-          var url;
-          if ( datatype == 'filepath' ) {
-            url = '/bugs/file/?filepath=' + data;
-          } else if ( datatype == 'author_name' ) {
-            url = '/bugs/authors/' + data;
-          } else if ( datatype == 'pattern' ) {
-            // Not implemented yet
-          } else {
-            return;
-          }
-          $.getJSON( url, {format: 'json' }).done(function(json_data){
-            var new_buglist_node = build_buglist_node( { bugs: json_data.bugs, datatype: datatype, data: data } );
-            add_accordion_to_bugs( new_buglist_node );
-            var new_tools_node = build_tools_for_bugs( new_buglist_node );
-            ui.newPanel.html(new_tools_node);
-            ui.newPanel.append(new_buglist_node);
-          });
-          ui.newPanel.data("loaded", 1);
-        }
-        jump_to_header( ui, list_node);
+function add_datatable_to_list( list_node, datatype ) {
+  if ( $(list_node).length <=0 ) {
+    return false;
+  }
+  var table = $( list_node ).dataTable( {
+    "aoColumnDefs": [
+        { "bSortable": false, "aTargets": [ 0 ] }
+    ],
+    "aaSorting": [[1, 'asc']],
+    "aLengthMenu": [[10, 20, 50, 100, -1], [10, 20, 50, 100, "All"]],
+    "iDisplayLength": 20,
+    "sPaginationType": "full_numbers",
+    "bAutoWidth": false,
+    "sDom": '<"top pager"lf>tr<"bottom pager"ip>',
+
+    "aoColumns": [
+      { "sWidth": "10%" },
+      { "sWidth": "30%" },
+      { "sWidth": "15%" },
+      { "sWidth": "15%" },
+      { "sWidth": "15%" },
+      { "sWidth": "15%" }
+    ],
+  } );
+  $(table.fnGetNodes() ).each( function () {
+    $(this).click( function () {
+      var tr = this;
+      if ( table.fnIsOpen(tr) ) {
+          $(this).find('td:first span').removeClass('ui-icon-minus');
+          $(this).find('td:first span').addClass('ui-icon-plus');
+          table.fnClose( tr );
       }
-    }
-  });
+      else {
+        $(this).find('td:first span').removeClass('ui-icon-plus');
+        $(this).find('td:first span').addClass('ui-icon-minus');
+
+        var td_class;
+        if ( $(tr).hasClass('odd') ) {
+            td_class = 'odd';
+        } else {
+            td_class = 'even';
+        }
+        var newRow = table.fnOpen( tr, "Loading...", td_class );
+
+        var data = table.fnGetData( tr )[1];
+        var url;
+        if ( datatype == 'filepath' ) {
+          url = '/bugs/file/?filepath=' + data;
+        } else if ( datatype == 'author_name' ) {
+          url = '/bugs/authors/' + data;
+        }
+
+        $.ajax( {
+            dataType: 'json',
+            type: "POST",
+            url: url,
+            success: function ( json_data ) {
+                new_buglist_node = build_buglist_node( { bugs: json_data.bugs, datatype: 'author_name', data: data } );
+                add_accordion_to_bugs( new_buglist_node );
+                var new_tools_node = build_tools_for_bugs( new_buglist_node );
+                $('td', newRow).html( new_tools_node );
+                $('td', newRow).append( new_buglist_node );
+            }
+        } );
+      }
+    } );
+  } );
 }
 
 function reorder_nodes( parent_node, children_selector, sort_by_data, order_modifier ) {
@@ -177,52 +208,6 @@ var delay = (function(){
 })();
 
 $(document).ready(function(){
-  $(".filepath-sort-by > .sort-by-add").click(function(){
-    reorder_nodes( $("#filepath-list"), 'div.filepath', 'add', 'asc' );
-  });
-  $(".filepath-sort-by > .sort-by-del").click(function(){
-    reorder_nodes( $("#filepath-list"), 'div.filepath', 'del', 'asc' );
-  });
-  $(".filepath-sort-by > .sort-by-alpha").click(function(){
-    reorder_nodes( $("#filepath-list"), 'div.filepath', 'filepath', 'desc' );
-  });
-  $(".author-sort-by > .sort-by-add").click(function(){
-    reorder_nodes( $("#author-list"), 'div.author', 'add', 'asc' );
-  });
-  $(".author-sort-by > .sort-by-del").click(function(){
-    reorder_nodes( $("#author-list"), 'div.author', 'del', 'asc' );
-  });
-  $(".author-sort-by > .sort-by-alpha").click(function(){
-    reorder_nodes( $("#author-list"), 'div.author', 'author_name', 'desc' );
-  });
-
-  $("#filepath-filter").on('keyup', function(){
-    var pattern = $(this).val();
-    delay(function(){
-      var filepath_nodes = $("#filepath-list div.filepath");
-      $(filepath_nodes).hide();
-      $(filepath_nodes).filter(function( index ) {
-        if ( $(this).attr('data-filepath').match(".*"+pattern+".*") ) {
-          return 1
-        }
-        return 0
-      }).show();
-    }, 1000);
-  });
-  $("#author-filter").on('keyup', function(){
-    var pattern = $(this).val();
-    delay(function(){
-      var author_nodes = $("#author-list div.author");
-      $(author_nodes).hide();
-      $(author_nodes).filter(function( index ) {
-        if ( $(this).attr('data-author_name').match(".*"+pattern+".*") ) {
-          return 1
-        }
-        return 0
-      }).show();
-    }, 1000);
-  });
-
   $("#pattern-filter").on('change', function(){
     var pattern = $(this).val();
     if ( pattern.length == 0 ) { return false; }
@@ -243,10 +228,10 @@ $(document).ready(function(){
   });
 
   $(function() {
-    add_accordion_to_list( $("#filepath-list"), 'filepath' );
+    add_datatable_to_list( $("#filepath-list"), 'filepath' );
   });
   $(function() {
-    add_accordion_to_list( $("#author-list"), 'author_name' );
+    add_datatable_to_list( $("#author-list"), 'author_name' );
   });
 });
 

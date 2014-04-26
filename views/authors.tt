@@ -1,32 +1,28 @@
 <h2>Browse by authors</h2>
 
-<div class="tools">
-  <input class="filter" id="author-filter" placeholder="Filter by authors"/>
-  <span class="author-sort-by">
-    Sort by:
-    <span class="sort-by sort-by-alpha" title="sort by alpha">Alpha</span>
-    <span class="sort-by sort-by-add ui-icon ui-icon-circle-plus" title="sort by add"></span>
-    <span class="sort-by sort-by-del ui-icon ui-icon-circle-minus" title="sort by del"></span>
-  </span>
-</div>
-
-<div id="author-list">
-  [% FOR author IN authors %]
-    [% IF author.author_name %] [%# FIXME Some patch don't have an author %]
-      <div class="author" data-author_name="[% author.author_name %]" data-add="[% author.num_lines_added %]" data-del="[% author.num_lines_deleted %]">
-        <h3>[% IF author.author_name %][% author.author_name %][% ELSE %]?[% END %] ([% author.num_bugs %] bugs / [% author.num_patches %] patches)</h3>
-        <div>Loading...</div>
-        <span class="infos">
-          <span class="num_lines_added">
-            <span class="ui-icon ui-icon-circle-plus"></span>
-            [% author.num_lines_added %]
-          </span>
-          <span class="num_lines_deleted">
-            <span class="ui-icon ui-icon-circle-minus"></span>
-            [% author.num_lines_deleted %]
-          </span>
-        </span>
-      </div>
+<table id="author-list">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Author name</th>
+      <th>#bugs</th>
+      <th>#patches</th>
+      <th>+</th>
+      <th>-</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOR author IN authors %]
+      [% IF author.author_name %] [%# FIXME Some patch don't have an author %]
+        <tr title="[% author.author_name %] submitted [% author.num_patches %] patches on [% author.num_bugs %] bug reports ([% author.num_lines_added%] additions and [% author.num_lines_deleted %] deletions)">
+          <td><span class="ui-icon ui-icon-plus"></span></td>
+          <td>[% author.author_name %]</td>
+          <td>[% author.num_bugs %]</td>
+          <td>[% author.num_patches %]</td>
+          <td>[% author.num_lines_added %]</td>
+          <td>[% author.num_lines_deleted %]</td>
+        </tr>
+      [% END %]
     [% END %]
-  [% END %]
-</div>
+  </tbody>
+</table>

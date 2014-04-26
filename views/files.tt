@@ -1,30 +1,26 @@
 <h2>Browse by files</h2>
 
-<div class="tools">
-  <input class="filter" id="filepath-filter" placeholder="Filter by files"/>
-  <span class="filepath-sort-by">
-    Sort by:
-    <span class="sort-by sort-by-alpha" title="sort by alpha">Alpha</span>
-    <span class="sort-by sort-by-add ui-icon ui-icon-circle-plus" title="sort by add"></span>
-    <span class="sort-by sort-by-del ui-icon ui-icon-circle-minus" title="sort by del"></span>
-  </span>
-</div>
-
-<div id="filepath-list">
-  [% FOR file IN files %]
-    <div class="filepath" data-filepath=[% file.filepath %] data-add=[% file.num_lines_added %] data-del=[% file.num_lines_deleted %]>
-      <h3>[% file.filepath %]</h3>
-      <div>Loading...</div>
-      <span class="infos">
-        <span class="num_lines_added">
-          <span class="ui-icon ui-icon-circle-plus"></span>
-          [% file.num_lines_added %]
-        </span>
-        <span class="num_lines_deleted">
-          <span class="ui-icon ui-icon-circle-minus"></span>
-          [% file.num_lines_deleted %]
-        </span>
-      </span>
-    </div>
-  [% END %]
-</div>
+<table id="filepath-list">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Filepath</th>
+      <th>#bugs</th>
+      <th>#patches</th>
+      <th>+</th>
+      <th>-</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOR file IN files %]
+      <tr title="This file is modified in [% file.num_patches %] patches submitted on [% file.num_bugs %] bug reports ([% file.num_lines_added%] additions and [% file.num_lines_deleted %] deletions)">
+        <td><span class="ui-icon ui-icon-plus"></span></td>
+        <td>[% file.filepath %]</td>
+        <td>[% file.num_bugs %]</td>
+        <td>[% file.num_patches %]</td>
+        <td>[% file.num_lines_added %]</td>
+        <td>[% file.num_lines_deleted %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
