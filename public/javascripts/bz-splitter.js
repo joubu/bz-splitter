@@ -4,15 +4,17 @@ function build_buglist_node(params) {
     var data = params.data;
 
     var bug_list = $('<div class="bug-list"></div>');
-    $(bugs).each(function(){
-      var new_bug_node = $('<div class="bug" data-bug_id="' + this['bug_id'] + '" data-'+datatype+'="' + data + '" data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'" ></div>');
-      var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
-      $(title).appendTo(new_bug_node);
-      $('<div>Loading...</div>').appendTo(new_bug_node);
-      $(new_bug_node).appendTo(bug_list);
+    if ( $(bugs).length > 0 ) {
+      $(bugs).each(function(){
+        var new_bug_node = $('<div class="bug" data-bug_id="' + this['bug_id'] + '" data-'+datatype+'="' + data + '" data-add="'+this['num_lines_added']+'" data-del="'+this['num_lines_deleted']+'" ></div>');
+        var title = $('<h4>Bug ' + this['bug_id'] + ':' + this['bug_title'] + ' ['+ this['bug_status'] + ']</h4>');
+        $(title).appendTo(new_bug_node);
+        $('<div>Loading...</div>').appendTo(new_bug_node);
+        $(new_bug_node).appendTo(bug_list);
 
-      $('<span class="infos"><span class="num_lines_added" title="This patch adds '+this['num_lines_added']+' lines"><span class="ui-icon ui-icon-circle-plus"></span>'+this['num_lines_added']+'</span><span class="num_lines_deleted" title="This patch removes '+this['num_lines_deleted']+' lines"><span class="ui-icon ui-icon-circle-minus"></span>'+this['num_lines_deleted'] + '</span>').appendTo(new_bug_node);
-    });
+        $('<span class="infos"><span class="num_lines_added" title="This patch adds '+this['num_lines_added']+' lines"><span class="ui-icon ui-icon-circle-plus"></span>'+this['num_lines_added']+'</span><span class="num_lines_deleted" title="This patch removes '+this['num_lines_deleted']+' lines"><span class="ui-icon ui-icon-circle-minus"></span>'+this['num_lines_deleted'] + '</span>').appendTo(new_bug_node);
+      });
+    }
     return bug_list;
 }
 
@@ -175,11 +177,17 @@ function add_datatable_to_list( list_node, datatype ) {
         var newRow = table.fnOpen( tr, "Loading...", td_class );
 
         var data = table.fnGetData( tr )[1];
+
+        var status_string = '';
+        $("input:checkbox[name='status']:checked").each(function(){
+          status_string += '&status=' + $(this).val();
+        });
+
         var url;
         if ( datatype == 'filepath' ) {
-          url = '/bugs/file/?filepath=' + data;
+          url = '/bugs/file/?filepath=' + data + status_string;
         } else if ( datatype == 'author_name' ) {
-          url = '/bugs/authors/' + data;
+          url = '/bugs/authors/' + data + '?' + status_string;
         }
 
         $.ajax( {
@@ -187,11 +195,15 @@ function add_datatable_to_list( list_node, datatype ) {
             type: "POST",
             url: url,
             success: function ( json_data ) {
+              if ( json_data.bugs.length > 0 ) {
                 new_buglist_node = build_buglist_node( { bugs: json_data.bugs, datatype: datatype, data: data } );
                 add_accordion_to_bugs( new_buglist_node );
                 var new_tools_node = build_tools_for_bugs( new_buglist_node );
                 $('td', newRow).html( new_tools_node );
                 $('td', newRow).append( new_buglist_node );
+              } else {
+                $('td', newRow).html( 'No match!' );
+              }
             },
             error: function () {
                 $('td', newRow).html( 'An error occurred , please try again later...' );

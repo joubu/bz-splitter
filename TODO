@@ -4,4 +4,3 @@
 - Add links from "changes made by Author to /file/path" to "all changes done to /file/path"
 - FIX syntax color for html patches
 - Search string in bugs
-- Add facets for statuses

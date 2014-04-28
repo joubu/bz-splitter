@@ -1,5 +1,21 @@
 <h2>Browse by authors</h2>
 
+
+<form action="/authors" method="get">
+  <div id="filters">
+    Filter by:
+    <span class="filter-status">
+      [% FOR status IN statuses %]
+        <label for="status-[% status.id %]">
+          <input type="checkbox" id="status-[% status.id %]" name="status" [% IF status.selected %]checked='checked'[% END %] value='[% status.name %]' />
+          [% status.name %]
+        </label>
+      [% END %]
+    </span>
+    <span class="filter-apply"><input type="submit" id="filter" value="Refresh author list" /></span>
+  </div>
+</form>
+
 <table id="author-list">
   <thead>
     <tr>
