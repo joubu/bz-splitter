@@ -187,7 +187,7 @@ function add_datatable_to_list( list_node, datatype ) {
         if ( datatype == 'filepath' ) {
           url = '/bugs/file/?filepath=' + data + status_string;
         } else if ( datatype == 'author_name' ) {
-          url = '/bugs/authors/' + data + '?' + status_string;
+          url = '/bugs/authors/' + data + '?' + status_string.replace(/^&/, '');
         }
 
         $.ajax( {
