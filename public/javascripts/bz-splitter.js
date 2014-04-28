@@ -74,6 +74,9 @@ function add_accordion_to_bugs ( buglist_node ) {
               var html = build_patchlist_node({ patches: data.patches, base_url: data.base_url, titles: {h3: 'attachment', h4: 'author'} });
               $(html).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
               ui.newPanel.html( html );
+            })
+            .fail(function(){
+                ui.newPanel.html( 'An error occurred , please try again later...' );
             });
           } else if ( author_name ) {
             var url = '/patches/bug/'+bug_id+'/author/' + author_name;
@@ -81,6 +84,9 @@ function add_accordion_to_bugs ( buglist_node ) {
               var html = build_patchlist_node({ patches: data.patches, base_url: data.base_url, titles: {h3: 'attachment', h4: 'filepath'} });
               $(html).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
               ui.newPanel.html( html );
+            })
+            .fail(function(){
+                ui.newPanel.html( 'An error occurred , please try again later...' );
             });
           } else {
             var url = '/patches/bug/'+bug_id+'/pattern/' + pattern;
@@ -88,6 +94,9 @@ function add_accordion_to_bugs ( buglist_node ) {
               var html = build_patchlist_node({ patches: data.patches, base_url: data.base_url, titles: {h3: 'attachment', h4: 'author'} });
               $(html).find(".patch pre code").each(function(i, e) {hljs.highlightBlock(e)});
               ui.newPanel.html( html );
+            })
+            .fail(function(){
+                ui.newPanel.html( 'An error occurred , please try again later...' );
             });
           }
           ui.newPanel.data("loaded", 1);
@@ -183,6 +192,9 @@ function add_datatable_to_list( list_node, datatype ) {
                 var new_tools_node = build_tools_for_bugs( new_buglist_node );
                 $('td', newRow).html( new_tools_node );
                 $('td', newRow).append( new_buglist_node );
+            },
+            error: function () {
+                $('td', newRow).html( 'An error occurred , please try again later...' );
             }
         } );
       }
