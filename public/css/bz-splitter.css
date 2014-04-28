@@ -3,32 +3,30 @@ body {
     color: #333333;
     font-family: "Lucida Grande","Bitstream Vera Sans","Verdana";
     font-size: 13px;
-    max-width: 100%;
-    max-width: 75%;
+    width: 80%;
     padding: 0% 10%;
+    margin: 0;
 }
 
-#sidebar h3 {
-    border-bottom: 1px solid #CCCCCC;
+#nav {
+    border-top: 1px solid #CCCCCC;
 }
 
 li {
+    display: inline;
+    text-align: center;
+    padding: 5px;
     list-style-type: none;
 }
 
 #document {
-    width: 85%;
+    width: 100%;
     float: left;
     background-color: #E6F0F2;
 }
 
 #content {
     padding: 1%;
-}
-
-#sidebar {
-    width: 15%;
-    float: right;
 }
 
 #welcome {

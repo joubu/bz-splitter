@@ -23,22 +23,19 @@
       <div id="header">
         <h1>Browse patches</h1>
         <h2>Find the patch you are searching for!</h2>
+        <div id="nav">
+          <ul class="links">
+            <li><a href="/files">Files</a></li>
+            <li><a href="/authors">Authors</a></li>
+            <li><a href="/patterns">Patterns</a></li>
+          </ul>
+        </div>
       </div>
 
       <div id="content">
         [% content %]
       </div>
     </div>
-
-    <div id="sidebar">
-      <h3>Browse by</h3>
-      <ul class="links">
-        <li><a href="/files">Files</a></li>
-        <li><a href="/authors">Authors</a></li>
-        <li><a href="/patterns">Patterns</a></li>
-      </ul>
-    </div>
-
 
     <div id="footer">
     Powered by <a href="http://perldancer.org/">Dancer</a> [% dancer_version %]
