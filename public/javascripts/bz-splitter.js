@@ -178,7 +178,7 @@ function add_datatable_to_list( list_node, datatype ) {
             type: "POST",
             url: url,
             success: function ( json_data ) {
-                new_buglist_node = build_buglist_node( { bugs: json_data.bugs, datatype: 'author_name', data: data } );
+                new_buglist_node = build_buglist_node( { bugs: json_data.bugs, datatype: datatype, data: data } );
                 add_accordion_to_bugs( new_buglist_node );
                 var new_tools_node = build_tools_for_bugs( new_buglist_node );
                 $('td', newRow).html( new_tools_node );
