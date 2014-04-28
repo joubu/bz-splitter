@@ -55,7 +55,7 @@ li {
 
 #filepath-list, author-list {
     padding: 1%;
-    width: auto;
+    width: 100%;
 }
 
 div.filepath {
