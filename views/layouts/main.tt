@@ -38,7 +38,7 @@
     </div>
 
     <div id="footer">
-    Powered by <a href="http://perldancer.org/">Dancer</a> [% dancer_version %]
+    Powered by <a href="https://github.com/joubu/bz-splitter">bz-splitter</a> and <a href="http://perldancer.org/">Dancer</a> [% dancer_version %].
     </div>
   </body>
 </html>
