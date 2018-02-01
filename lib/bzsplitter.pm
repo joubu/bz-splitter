@@ -4,6 +4,7 @@ use Modern::Perl;
 use Dancer ':syntax';
 
 use Dancer::Plugin::Database;
+use Dancer::Plugin::DBIC qw(schema resultset);
 use Dancer::Plugin::Ajax;
 
 use HTML::Entities;
@@ -216,7 +217,7 @@ sub get_bugs {
           . ( $pattern     ? q| AND diff LIKE ? |     : '' )
           . ( @$statuses   ? q| AND bug_status IN ( | . join( ', ', ('?') x scalar( @$statuses ) ) . q| ) | : '' )
           . q|
-            GROUP BY bug_id
+            GROUP BY bug_id, bug_title, bug_status
             ORDER BY bug_id
             |
           . ( $limit ? qq| LIMIT $limit| : '' ),
